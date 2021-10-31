@@ -3,11 +3,11 @@ from typing import Dict, Iterable
 
 
 class DatabaseManager:
+
     def __init__(self, filepath: str) -> None:
-        self.__filePath = filepath
         self.__connection = sqlite3.connect(filepath)
 
-    def __execute(self, request: str, params: Iterable = None, size: int = None):
+    def __execute(self, request: str, params: Iterable = None, size: int = None) -> list:
         cursor = self.__connection.cursor()
         if params is None:
             cursor.execute(request)
@@ -31,7 +31,7 @@ class DatabaseManager:
         self.__execute(request, list(values.values()))
 
     def select(self, table_name: str, columns: Iterable = None, criteria: dict = None,
-               order: Dict = None, size: int = None):
+               order: Dict = None, size: int = None) -> list:
         request: str = \
             f"SELECT {'*' if columns is None else ', '.join(columns)} FROM {table_name} "
 
@@ -40,16 +40,17 @@ class DatabaseManager:
 
         if order is not None:
             request += "ORDER BY " + ", ".join([f"{key} {value}" for key, value in order.items()])
+
         return self.__execute(request, size=size) if criteria is None else \
             self.__execute(request, list(criteria.values()), size=size)
 
-    def update(self, table_name: str, content: dict, criteria: dict):
+    def update(self, table_name: str, content: dict, criteria: dict) -> None:
         request: str = \
             f"UPDATE {table_name} SET {', '.join([f'{key} = {value}' for key, value in content.items()])} " \
             f"WHERE {', '.join([f'{key} = {value}' for key, value in criteria.items()])}"
         self.__execute(request)
 
-    def delete(self, table_name: str, criteria: dict):
+    def delete(self, table_name: str, criteria: dict) -> None:
         request: str = \
             f"DELETE FROM {table_name} WHERE {', '.join([f'{key} = {value}' for key, value in criteria.items()])}"
         self.__execute(request)
