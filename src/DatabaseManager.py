@@ -22,7 +22,7 @@ class DatabaseManager:
         request: str = \
             f"CREATE TABLE IF NOT EXISTS {name} "
         if layout is not None:
-            request += "(" + ", ".join([f'{key} = {value}' for key, value in layout.items()]) + ")"
+            request += "(" + ", ".join([f'{key} {value}' for key, value in layout.items()]) + ")"
         self.__execute(request)
 
     def insert(self, table_name: str, values: dict) -> None:
